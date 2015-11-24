@@ -68,7 +68,12 @@ if [ -n "${INIT_BACKUP}" ]; then
     /backup.sh
 elif [ -n "${INIT_RESTORE_LATEST}" ]; then
     echo "=> Restore lates backup"
-    ls -rt /backup | tail -n 1 | xargs /restore.sh
+    until nc -z $MYSQL_HOST $MYSQL_PORT
+    do
+        echo "waiting database container..."
+        sleep 1
+    done
+    ls -d -1 -rt /backup/* | tail -1 | xargs /restore.sh
 fi
 
 echo "${CRON_TIME} /backup.sh >> /mysql_backup.log 2>&1" > /crontab.conf
