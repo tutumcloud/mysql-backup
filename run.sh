@@ -66,6 +66,9 @@ tail -F /mysql_backup.log &
 if [ -n "${INIT_BACKUP}" ]; then
     echo "=> Create a backup on the startup"
     /backup.sh
+elif [ -n "${INIT_RESTORE_LATEST}" ]; then
+    echo "=> Restore lates backup"
+    ls -rt /backup | tail -n 1 | xargs /restore.sh
 fi
 
 echo "${CRON_TIME} /backup.sh >> /mysql_backup.log 2>&1" > /crontab.conf
