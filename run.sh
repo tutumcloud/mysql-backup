@@ -73,7 +73,7 @@ elif [ -n "${INIT_RESTORE_LATEST}" ]; then
         echo "waiting database container..."
         sleep 1
     done
-    ls -d -1 -rt /backup/* | tail -1 | xargs /restore.sh
+    ls -d -1 /backup/* | tail -1 | xargs /restore.sh
 fi
 
 echo "${CRON_TIME} /backup.sh >> /mysql_backup.log 2>&1" > /crontab.conf

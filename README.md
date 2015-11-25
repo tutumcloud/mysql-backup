@@ -28,6 +28,7 @@ Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysq
     CRON_TIME       the interval of cron job to run mysqldump. `0 0 * * *` by default, which is every day at 00:00
     MAX_BACKUPS     the number of backups to keep. When reaching the limit, the old backup will be discarded. No limit by default
     INIT_BACKUP     if set, create a backup when the container starts
+    INIT_RESTORE_LATEST if set, restores latest backup
 
 ## Restore from a backup
 
