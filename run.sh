@@ -16,7 +16,7 @@ MYSQL_PASS=${MYSQL_PASS:-${MYSQL_ENV_MYSQL_PASS}}
 [ -z "${MYSQL_USER}" ] && { echo "=> MYSQL_USER cannot be empty" && exit 1; }
 [ -z "${MYSQL_PASS}" ] && { echo "=> MYSQL_PASS cannot be empty" && exit 1; }
 
-BACKUP_CMD="mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/"'${BACKUP_NAME}'
+BACKUP_CMD="mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/"'${BACKUP_SQL_NAME}'
 
 echo "=> Creating backup script"
 rm -f /backup_mysql.sh
@@ -24,9 +24,9 @@ cat <<EOF >> /backup_mysql.sh
 #!/bin/bash
 MAX_BACKUPS=${MAX_BACKUPS}
 
-BACKUP_NAME=\$(date +\%Y.\%m.\%d.\%H\%M\%S).sql
+BACKUP_SQL_NAME=\$(date +\%Y.\%m.\%d.\%H\%M\%S).sql
 
-echo "=> Backup started: \${BACKUP_NAME}"
+echo "=> Backup started: \${BACKUP_SQL_NAME}"
 if ${BACKUP_CMD} ;then
     echo "   MySQL Backup succeeded"
     echo "   Pushing to AWS"
@@ -62,16 +62,7 @@ if [ -n "${INIT_BACKUP}" ]; then
     echo "=> Create a backup on the startup"
     /backup_mysql.sh
 elif [ -n "${INIT_RESTORE_LATEST}" ]; then
-    echo "=> Restore lates backup"
-    rm -f /backup/*
-    echo "   Pullling from AWS"
-    /restore.sh
-    until nc -z $MYSQL_HOST $MYSQL_PORT
-    do
-        echo "waiting database container..."
-        sleep 1
-    done
-    ls -d -1 /backup/* | tail -1 | xargs /restore_mysql.sh
+    /restore_latest.sh
 fi
 
 echo "${CRON_TIME} /backup_mysql.sh >> /mysql_backup.log 2>&1" > /crontab.conf

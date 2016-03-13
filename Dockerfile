@@ -15,6 +15,7 @@ ENV MAX_BACKUPS=1 \
 ADD run.sh /run.sh
 ADD backup.sh /backup.sh
 ADD restore.sh /restore.sh
+ADD restore_latest.sh /restore_latest.sh
 
 RUN chmod +x *.sh
 
