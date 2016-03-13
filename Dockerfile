@@ -6,8 +6,7 @@ RUN apt-get update && \
     apt-get install -y python-pip && pip install awscli && \
     mkdir /backup
 
-ENV MAX_BACKUPS=1 \
-    PATHS_TO_BACKUP=/backup \
+ENV PATHS_TO_BACKUP= \
     CRON_TIME="0 0 * * *" \
     MYSQL_DB="--all-databases" \
     RESTORE=false
