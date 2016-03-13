@@ -65,7 +65,7 @@ elif [ -n "${INIT_RESTORE_LATEST}" ]; then
 fi
 
 echo "${CRON_TIME} /backup_mysql.sh >> /mysql_backup.log 2>&1" > /crontab.conf
-env | grep 'AWS\|BACKUP_NAME\|PATHS_TO_BACKUP\|S3_BUCKET_NAME' | cat - /crontab.conf > temp && mv temp /crontab.conf
+env | grep 'AWS\|BACKUP_NAME\|S3_BUCKET_NAME' | cat - /crontab.conf > temp && mv temp /crontab.conf
 crontab  /crontab.conf
 echo "=> Running cron job"
 exec cron -f
