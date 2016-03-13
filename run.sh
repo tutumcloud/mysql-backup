@@ -22,7 +22,6 @@ echo "=> Creating backup script"
 rm -f /backup_mysql.sh
 cat <<EOF >> /backup_mysql.sh
 #!/bin/bash
-MAX_BACKUPS=${MAX_BACKUPS}
 
 BACKUP_SQL_NAME=\$(date +\%Y.\%m.\%d.\%H\%M\%S).sql
 
