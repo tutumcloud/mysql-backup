@@ -19,8 +19,8 @@ MYSQL_PASS=${MYSQL_PASS:-${MYSQL_ENV_MYSQL_PASS}}
 BACKUP_CMD="mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/"'${BACKUP_NAME}'
 
 echo "=> Creating backup script"
-rm -f /backup.sh
-cat <<EOF >> /backup.sh
+rm -f /backup_mysql.sh
+cat <<EOF >> /backup_mysql.sh
 #!/bin/bash
 MAX_BACKUPS=${MAX_BACKUPS}
 
@@ -28,27 +28,22 @@ BACKUP_NAME=\$(date +\%Y.\%m.\%d.\%H\%M\%S).sql
 
 echo "=> Backup started: \${BACKUP_NAME}"
 if ${BACKUP_CMD} ;then
-    echo "   Backup succeeded"
+    echo "   MySQL Backup succeeded"
+    echo "   Pushing to AWS"
+    /backup.sh
 else
     echo "   Backup failed"
-    rm -rf /backup/\${BACKUP_NAME}
 fi
 
-if [ -n "\${MAX_BACKUPS}" ]; then
-    while [ \$(ls /backup -N1 | wc -l) -gt \${MAX_BACKUPS} ];
-    do
-        BACKUP_TO_BE_DELETED=\$(ls /backup -N1 | sort | head -n 1)
-        echo "   Backup \${BACKUP_TO_BE_DELETED} is deleted"
-        rm -rf /backup/\${BACKUP_TO_BE_DELETED}
-    done
-fi
+rm -f /backup/*
+
 echo "=> Backup done"
 EOF
-chmod +x /backup.sh
+chmod +x /backup_mysql.sh
 
 echo "=> Creating restore script"
-rm -f /restore.sh
-cat <<EOF >> /restore.sh
+rm -f /restore_mysql.sh
+cat <<EOF >> /restore_mysql.sh
 #!/bin/bash
 echo "=> Restore database from \$1"
 if mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} < \$1 ;then
@@ -58,25 +53,29 @@ else
 fi
 echo "=> Done"
 EOF
-chmod +x /restore.sh
+chmod +x /restore_mysql.sh
 
 touch /mysql_backup.log
 tail -F /mysql_backup.log &
 
 if [ -n "${INIT_BACKUP}" ]; then
     echo "=> Create a backup on the startup"
-    /backup.sh
+    /backup_mysql.sh
 elif [ -n "${INIT_RESTORE_LATEST}" ]; then
     echo "=> Restore lates backup"
+    rm -f /backup/*
+    echo "   Pullling from AWS"
+    /restore.sh
     until nc -z $MYSQL_HOST $MYSQL_PORT
     do
         echo "waiting database container..."
         sleep 1
     done
-    ls -d -1 /backup/* | tail -1 | xargs /restore.sh
+    ls -d -1 /backup/* | tail -1 | xargs /restore_mysql.sh
 fi
 
-echo "${CRON_TIME} /backup.sh >> /mysql_backup.log 2>&1" > /crontab.conf
+echo "${CRON_TIME} /backup_mysql.sh >> /mysql_backup.log 2>&1" > /crontab.conf
+env | grep 'AWS\|BACKUP_NAME\|PATHS_TO_BACKUP\|S3_BUCKET_NAME' | cat - /crontab.conf > temp && mv temp /crontab.conf
 crontab  /crontab.conf
 echo "=> Running cron job"
 exec cron -f
