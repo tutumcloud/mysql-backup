@@ -6,9 +6,7 @@ RUN apt-get update && \
     apt-get install -y python-pip && pip install awscli && \
     mkdir /backup
 
-ENV CRON_TIME="0 0 * * *" \
-    MYSQL_DB="--all-databases" \
-    RESTORE=false
+ENV RESTORE=false
 
 ADD run.sh /run.sh
 ADD backup.sh /backup.sh
