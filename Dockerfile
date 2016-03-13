@@ -19,6 +19,4 @@ ADD restore_latest.sh /restore_latest.sh
 
 RUN chmod +x *.sh
 
-#VOLUME ["/backup"]
-
 CMD ["/run.sh"]
