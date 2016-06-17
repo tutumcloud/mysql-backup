@@ -1,8 +1,8 @@
 #!/bin/bash
 
-echo "=> Restore lates backup"
+echo "=> Restore latest backup"
 rm -f /backup/*
-echo "   Pullling from AWS"
+echo "   Pulling from AWS"
 /restore.sh
 until nc -z $MYSQL_HOST $MYSQL_PORT
 do
