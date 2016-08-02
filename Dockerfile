@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM ubuntu:xenial
 MAINTAINER Tutum Labs <support@tutum.co>
 
 RUN apt-get update && \
