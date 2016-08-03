@@ -23,13 +23,13 @@ cat <<EOF >> /backup.sh
 MAX_BACKUPS=${MAX_BACKUPS}
 
 BACKUP_NAME_NOEXT=$(date +\%Y.\%m.\%d.\%H\%M\%S)
-BACKUP_NAME=\$(BACKUP_NAME_NOEXT).sql
-BACKUP_GZ_NAME=\$(BACKUP_NAME_NOEXT).gz
+BACKUP_NAME=\${BACKUP_NAME_NOEXT}.sql
+BACKUP_GZ_NAME=\${BACKUP_NAME_NOEXT}.gz
 
 BACKUP_CMD="exec /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} | gzip -c -9 > /backup/${BACKUP_GZ_NAME}"
 
 echo "=> Backup started: \${BACKUP_NAME}"
-if ${BACKUP_CMD} ;then
+if ${BACKUP_CMD}; then
     echo "   Backup succeeded"
 else
     echo "   Backup failed"
