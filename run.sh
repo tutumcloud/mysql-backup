@@ -16,22 +16,23 @@ MYSQL_PASS=${MYSQL_PASS:-${MYSQL_ENV_MYSQL_PASS}}
 [ -z "${MYSQL_USER}" ] && { echo "=> MYSQL_USER cannot be empty" && exit 1; }
 [ -z "${MYSQL_PASS}" ] && { echo "=> MYSQL_PASS cannot be empty" && exit 1; }
 
-BACKUP_CMD="exec /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/"'${BACKUP_NAME}'
-
 echo "=> Creating backup script"
 rm -f /backup.sh
 cat <<EOF >> /backup.sh
 #!/bin/bash
 MAX_BACKUPS=${MAX_BACKUPS}
 
-BACKUP_NAME=\$(date +\%Y.\%m.\%d.\%H\%M\%S).sql
+BACKUP_NAME_NOEXT=$(date +\%Y.\%m.\%d.\%H\%M\%S)
+BACKUP_NAME=\$(BACKUP_NAME_NOEXT).sql
+BACKUP_GZ_NAME=\$(BACKUP_NAME_NOEXT).gz
+
+BACKUP_CMD="exec /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} | gzip -c -9 > /backup/${BACKUP_GZ_NAME}"
 
 echo "=> Backup started: \${BACKUP_NAME}"
 if ${BACKUP_CMD} ;then
     echo "   Backup succeeded"
 else
     echo "   Backup failed"
-    rm -rf /backup/\${BACKUP_NAME}
 fi
 
 if [ -n "\${MAX_BACKUPS}" ]; then
@@ -51,7 +52,7 @@ rm -f /restore.sh
 cat <<EOF >> /restore.sh
 #!/bin/bash
 echo "=> Restore database from \$1"
-if exec gosu mysql mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} < \$1 ;then
+if gunzip -c \$1 | exec gosu mysql mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ;then
     echo "   Restore succeeded"
 else
     echo "   Restore failed"
