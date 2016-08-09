@@ -23,15 +23,19 @@ echo "=> Creating backup script"
 rm -f /backup.sh
 cat <<EOF >> /backup.sh
 #!/bin/bash
+
+# Setting the pass phrase to encrypt the backup files.
+export PASSPHRASE=\$DUPLICITY_ENCRYPT_PASSPHRASE
+
 MAX_BACKUPS=${MAX_BACKUPS}
 
 BACKUP_NAME_NOEXT=\$(date +\%Y.\%m.\%d.\%H\%M\%S)
 BACKUP_GZ_NAME=\${BACKUP_NAME_NOEXT}.gz
 
-if [[ ! -z ${SFTP_USER} && ! -z ${SFTP_HOST} && ! -z ${SFTP_DIR} ]]; then
+if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	echo "=> Backup started: ${MYSQL_DB}.sql"
 
-	if exec /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=’/root/.ssh/id_rsa’" ${DUPLICITY_EXTRA_OPTS} /backup sftp://\${SFTP_USER}@\${SFTP_HOST}:${SFTP_PORT}/\${SFTP_DIR} ;then
+	if exec /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=’/root/.ssh/id_rsa’" ${DUPLICITY_EXTRA_OPTS} /backup sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} ;then
 		echo "   Backup succeeded"
 	else
 		echo "   Backup failed"
