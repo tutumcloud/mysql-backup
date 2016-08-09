@@ -36,6 +36,9 @@ RUN apt-get update \
 		cron \
 	&& rm -rf /var/lib/apt/lists/*
 
+# timezone
+ENV TIMEZONE="Etc/UTC"
+
 ENV CRON_TIME="0 0 * * *" \
     MYSQL_DB="--all-databases"
 ADD run.sh /run.sh
