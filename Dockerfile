@@ -34,6 +34,10 @@ RUN apt-get update \
 	&& apt-get install -y \
 		mysql-client="${MYSQL_VERSION}" \
 		cron \
+		openssh-client \
+		python-paramiko \
+		duplicity \
+		python \
 	&& rm -rf /var/lib/apt/lists/*
 
 # timezone
