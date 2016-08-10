@@ -19,7 +19,7 @@ Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysq
 
 ## Parameters
 
-    TIMEZONE	        e.g. Europe/Moscow
+    TIMEZONE        e.g. Europe/Moscow
     MYSQL_HOST      the host/ip of your mysql database
     MYSQL_PORT      the port number of your mysql database
     MYSQL_USER      the username of your mysql database
@@ -113,5 +113,5 @@ if you have used same options for backup container startup as in the example abo
 after executing it you would find file named /restore/mydatabase-1D.sql restored.
 
 Instead of 1D you can use 1h for hours, 15m for minutes, 1W for weeks or 1Y for years.
-You canb use an exact date in a format like YYYY/MM/DD. See the full list of formats there:
+You can use an exact date in a format like YYYY/MM/DD. See the full list of formats there:
 [Duplicity Time Formats](http://duplicity.nongnu.org/duplicity.1.html#sect8)
