@@ -25,7 +25,7 @@ cat <<EOF >> /backup.sh
 #!/bin/bash
 
 # Setting the pass phrase to encrypt the backup files.
-export PASSPHRASE=\$DUPLICITY_ENCRYPT_PASSPHRASE
+export PASSPHRASE=$DUPLICITY_ENCRYPT_PASSPHRASE
 
 MAX_BACKUPS=${MAX_BACKUPS}
 
