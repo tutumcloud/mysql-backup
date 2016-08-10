@@ -32,6 +32,10 @@ MAX_BACKUPS=${MAX_BACKUPS}
 BACKUP_NAME_NOEXT=\$(date +\%Y.\%m.\%d.\%H\%M\%S)
 BACKUP_GZ_NAME=\${BACKUP_NAME_NOEXT}.gz
 
+SFTP_USER=${SFTP_USER}
+SFTP_HOST=${SFTP_HOST}
+SFTP_DIR=${SFTP_DIR}
+
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	echo "=> Backup started: ${MYSQL_DB}.sql"
 
