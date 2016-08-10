@@ -94,6 +94,31 @@ echo "=> Done"
 EOF
 chmod +x /restore.sh
 
+rm -f /restore-file-only.sh
+cat <<EOF >> /restore-file-only.sh
+#!/bin/bash
+
+# Setting the pass phrase to encrypt the backup files.
+export PASSPHRASE=$DUPLICITY_ENCRYPT_PASSPHRASE
+
+if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
+	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore ${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/${MYSQL_DB}-\${1}.sql ;then
+		echo "   Restore succeeded"
+	else
+		echo "   Restore failed"
+	fi
+else
+	echo "=> Restore database from \$1"
+	if gunzip -c \$1 > /restore/\${1}.sql ;then
+		echo "   Restore succeeded"
+	else
+		echo "   Restore failed"
+	fi
+fi
+echo "=> Done"
+EOF
+chmod +x /restore-file-only.sh
+
 touch /mysql_backup.log
 tail -F /mysql_backup.log &
 
