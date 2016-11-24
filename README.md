@@ -42,6 +42,7 @@ Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysq
 
 ## Usage with duplicity over sftp
 
+    mkdir -p /root/.cache/duplicity
     docker run -d \
         --env MYSQL_HOST=mysql.host \
         --env MYSQL_PORT=27017 \
@@ -61,9 +62,8 @@ Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysq
 		--env DUPLICITY_ENCRYPT_PASSPHRASE=12345676543212345676543234567654 \
         --volume /backup:/backup \
 		--volume /restore:/restore \
-		--volume /root/.ssh/id_rsa:/root/.ssh/id_rsa \
-		--volume /root/.ssh/id_rsa.pub:/root/.ssh/id_rsa.pub \
-		--volume /root/.ssh/known_hosts:/root/.ssh/known_hosts \
+		--volume /root/.ssh:/root/.ssh \
+		--volume /root/.cache/duplicity:/root/.cache/duplicity \
         tutum/mysql-backup
 
 You need to connect to the backup server at least once from your host system in order to have a valid record for it in the known_hosts file.
