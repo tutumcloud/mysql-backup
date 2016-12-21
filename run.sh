@@ -38,9 +38,9 @@ SFTP_PORT=${SFTP_PORT}
 SFTP_DIR=${SFTP_DIR}
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
-	echo "=> Backup started: ${MYSQL_DB}.sql"
+	echo "=> Backup started: \${MYSQL_DB}.sql"
 
-	if /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} > /backup/${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" ${DUPLICITY_EXTRA_OPTS} /backup sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} ;then
+	if /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} > /backup/\${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" \${DUPLICITY_EXTRA_OPTS} /backup sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} ;then
 		echo "   Backup succeeded"
 	else
 		echo "   Backup failed"
@@ -48,7 +48,7 @@ if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 else
 	echo "=> Backup started: \${BACKUP_GZ_NAME}"
 
-	if exec /usr/local/bin/gosu mysql mysqldump -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ${EXTRA_OPTS} ${MYSQL_DB} | gzip -c -9 > /backup/\${BACKUP_GZ_NAME} ;then
+	if exec /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} | gzip -c -9 > /backup/\${BACKUP_GZ_NAME} ;then
 		echo "   Backup succeeded"
 	else
 		echo "   Backup failed"
@@ -74,17 +74,17 @@ cat <<EOF >> /restore.sh
 #!/bin/bash
 
 # Setting the pass phrase to encrypt the backup files.
-export PASSPHRASE=$DUPLICITY_ENCRYPT_PASSPHRASE
+export PASSPHRASE=\$DUPLICITY_ENCRYPT_PASSPHRASE
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
-	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore ${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/${MYSQL_DB}-\${1}.sql && gosu mysql mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} < /restore/${MYSQL_DB}-\${1}.sql ;then
+	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql && gosu mysql mysql -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} < /restore/\${MYSQL_DB}-\${1}.sql ;then
 		echo "   Restore succeeded"
 	else
 		echo "   Restore failed"
 	fi
 else
 	echo "=> Restore database from \$1"
-	if gunzip -c \$1 | exec gosu mysql mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASS} ;then
+	if gunzip -c \$1 | exec gosu mysql mysql -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} ;then
 		echo "   Restore succeeded"
 	else
 		echo "   Restore failed"
@@ -99,10 +99,10 @@ cat <<EOF >> /restore-file-only.sh
 #!/bin/bash
 
 # Setting the pass phrase to encrypt the backup files.
-export PASSPHRASE=$DUPLICITY_ENCRYPT_PASSPHRASE
+export PASSPHRASE=\$DUPLICITY_ENCRYPT_PASSPHRASE
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
-	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore ${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/${MYSQL_DB}-\${1}.sql ;then
+	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql ;then
 		echo "   Restore succeeded"
 	else
 		echo "   Restore failed"
