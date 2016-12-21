@@ -37,13 +37,13 @@ SFTP_HOST=${SFTP_HOST}
 SFTP_PORT=${SFTP_PORT}
 SFTP_DIR=${SFTP_DIR}
 
-MYSQL_HOST=$(MYSQL_HOST)
-MYSQL_PORT=$(MYSQL_PORT)
-MYSQL_USER=$(MYSQL_USER)
-MYSQL_PASS=$(MYSQL_PASS)
-MYSQL_DB=$(MYSQL_DB)
-EXTRA_OPTS=$(EXTRA_OPTS)
-DUPLICITY_EXTRA_OPTS=$(DUPLICITY_EXTRA_OPTS)
+MYSQL_HOST=${MYSQL_HOST}
+MYSQL_PORT=${MYSQL_PORT}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASS=${MYSQL_PASS}
+MYSQL_DB=${MYSQL_DB}
+EXTRA_OPTS=${EXTRA_OPTS}
+DUPLICITY_EXTRA_OPTS=${DUPLICITY_EXTRA_OPTS}
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	echo "=> Backup started: \${MYSQL_DB}.sql"
@@ -89,11 +89,11 @@ SFTP_HOST=${SFTP_HOST}
 SFTP_PORT=${SFTP_PORT}
 SFTP_DIR=${SFTP_DIR}
 
-MYSQL_HOST=$(MYSQL_HOST)
-MYSQL_PORT=$(MYSQL_PORT)
-MYSQL_USER=$(MYSQL_USER)
-MYSQL_PASS=$(MYSQL_PASS)
-MYSQL_DB=$(MYSQL_DB)
+MYSQL_HOST=${MYSQL_HOST}
+MYSQL_PORT=${MYSQL_PORT}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASS=${MYSQL_PASS}
+MYSQL_DB=${MYSQL_DB}
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql && gosu mysql mysql -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} < /restore/\${MYSQL_DB}-\${1}.sql ;then
@@ -125,7 +125,7 @@ SFTP_HOST=${SFTP_HOST}
 SFTP_PORT=${SFTP_PORT}
 SFTP_DIR=${SFTP_DIR}
 
-MYSQL_DB=$(MYSQL_DB)
+MYSQL_DB=${MYSQL_DB}
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql ;then
