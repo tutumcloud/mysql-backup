@@ -10,6 +10,7 @@ This image runs mysqldump to backup data using cronjob to folder `/backup`
         --env MYSQL_USER=admin \
         --env MYSQL_PASS=password \
         --volume host.folder:/backup \
+        --name tutum-backup \
         tutum/mysql-backup
 
 Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysql`) with an alias named mysql, this image will try to auto load the `host`, `port`, `user`, `pass` if possible.
@@ -48,22 +49,23 @@ Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysq
         --env MYSQL_PORT=27017 \
         --env MYSQL_USER=admin \
         --env MYSQL_PASS=password \
-		--env MYSQL_DB=mydatabase \
-		--env EXTRA_OPTS=--skip-lock-tables --single-transaction --flush-logs --hex-blob --master-data=2 \
-		--env CRON_TIME=0 6 * * * \
-		--env INIT_BACKUP=1 \
-		--env MAX_BACKUPS=30 \
-		--env TIMEZONE=Europe/Moscow \
-		--env SFTP_USER=username \
-		--env SFTP_HOST=12.34.56.78 \
-		--env SFTP_PORT=22 \
-		--env SFTP_DIR=backup/ \
-		--env DUPLICITY_EXTRA_OPTS=--full-if-older-than 1M --allow-source-mismatch \
-		--env DUPLICITY_ENCRYPT_PASSPHRASE=12345676543212345676543234567654 \
+        --env MYSQL_DB=mydatabase \
+        --env EXTRA_OPTS=--skip-lock-tables --single-transaction --flush-logs --hex-blob --master-data=2 \
+        --env CRON_TIME=0 6 * * * \
+        --env INIT_BACKUP=1 \
+        --env MAX_BACKUPS=30 \
+        --env TIMEZONE=Europe/Moscow \
+        --env SFTP_USER=username \
+        --env SFTP_HOST=12.34.56.78 \
+        --env SFTP_PORT=22 \
+        --env SFTP_DIR=backup/ \
+        --env DUPLICITY_EXTRA_OPTS=--full-if-older-than 1M --allow-source-mismatch \
+        --env DUPLICITY_ENCRYPT_PASSPHRASE=12345676543212345676543234567654 \
         --volume /backup:/backup \
-		--volume /restore:/restore \
-		--volume /root/.ssh:/root/.ssh \
-		--volume /root/.cache/duplicity:/root/.cache/duplicity \
+        --volume /restore:/restore \
+        --volume /root/.ssh:/root/.ssh \
+        --volume /root/.cache/duplicity:/root/.cache/duplicity \
+        --name tutum-backup \
         tutum/mysql-backup
 
 You need to connect to the backup server at least once from your host system in order to have a valid record for it in the known_hosts file.
@@ -94,6 +96,8 @@ Use this [Guide](www.jscape.com/blog/setting-up-sftp-public-key-authentication-c
 See the list of backups, you can run:
 
     docker exec tutum-backup ls /backup
+    
+> Note that `tutum-backup` is a docker container name assigned previously with `--name` option.
 
 To restore database from a certain backup, simply run:
 
@@ -115,3 +119,7 @@ after executing it you would find file named /restore/mydatabase-1D.sql restored
 Instead of 1D you can use 1h for hours, 15m for minutes, 1W for weeks or 1Y for years.
 You can use an exact date in a format like YYYY/MM/DD. See the full list of formats there:
 [Duplicity Time Formats](http://duplicity.nongnu.org/duplicity.1.html#sect8)
+
+If you have used your backup server for backup from several servers, e.g. `master` and `slave`, and defined the environment variable `SFTP_DIR` as `backup/1d` on `master` and to `backup/15m` on `slave`, you can use this comand to restore master backup on a slave:
+
+     docker exec tutum-backup /bin/bash -c "export SFTP_DIR=backup/1d && export MYSQL_USER=root && export MYSQL_PASS=123456 && /restore.sh 1D"
