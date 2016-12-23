@@ -36,6 +36,7 @@ RUN apt-get update \
 		cron \
 		openssh-client \
 		python-paramiko \
+		python-pexpect \
 		duplicity \
 		python \
 	&& rm -rf /var/lib/apt/lists/*
