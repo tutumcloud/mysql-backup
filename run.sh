@@ -48,7 +48,9 @@ DUPLICITY_EXTRA_OPTS="${DUPLICITY_EXTRA_OPTS}"
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	echo "=> Backup started: \${MYSQL_DB}.sql"
 
-	if /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} > /backup/\${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" \${DUPLICITY_EXTRA_OPTS} /backup sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} ;then
+	# using pexpect+sftp because of a bug in paramiko backend. 
+	# @see https://lists.gnu.org/archive/html/duplicity-talk/2016-10/msg00010.html
+	if /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} > /backup/\${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" \${DUPLICITY_EXTRA_OPTS} /backup pexpect+sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} ;then
 		echo "   Backup succeeded"
 	else
 		echo "   Backup failed"
@@ -96,7 +98,9 @@ MYSQL_PASS="${MYSQL_PASS}"
 MYSQL_DB=${MYSQL_DB}
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
-	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql && gosu mysql mysql -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} < /restore/\${MYSQL_DB}-\${1}.sql ;then
+	# using pexpect+sftp because of a bug in paramiko backend. 
+	# @see https://lists.gnu.org/archive/html/duplicity-talk/2016-10/msg00010.html
+	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql pexpect+sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql && gosu mysql mysql -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} < /restore/\${MYSQL_DB}-\${1}.sql ;then
 		echo "   Restore succeeded"
 	else
 		echo "   Restore failed"
@@ -128,7 +132,9 @@ SFTP_DIR="${SFTP_DIR}"
 MYSQL_DB=${MYSQL_DB}
 
 if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
-	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql ;then
+	# using pexpect+sftp because of a bug in paramiko backend. 
+	# @see https://lists.gnu.org/archive/html/duplicity-talk/2016-10/msg00010.html
+	if duplicity --allow-source-mismatch --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" -t \${1} --file-to-restore \${MYSQL_DB}.sql pexpect+sftp://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} /restore/\${MYSQL_DB}-\${1}.sql ;then
 		echo "   Restore succeeded"
 	else
 		echo "   Restore failed"
