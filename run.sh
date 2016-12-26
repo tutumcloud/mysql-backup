@@ -51,7 +51,7 @@ if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 
 	# using pexpect+sftp because of a bug in paramiko backend. 
 	# @see https://lists.gnu.org/archive/html/duplicity-talk/2016-10/msg00010.html
-	if /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} > /backup/\${MYSQL_DB}.sql && duplicity --ssh-options="-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa" \${DUPLICITY_EXTRA_OPTS} /backup \${DUPLICITY_SCHEME}://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR} ;then
+	if flock -x -n /root/.cache/duplicity/backup.lock -c "/usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} > /backup/\${MYSQL_DB}.sql && duplicity --ssh-options=\"-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa\" \${DUPLICITY_EXTRA_OPTS} /backup \${DUPLICITY_SCHEME}://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR}" ;then
 		echo "   Backup succeeded"
 	else
 		echo "   Backup failed"
@@ -59,7 +59,7 @@ if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 else
 	echo "=> Backup started: \${BACKUP_GZ_NAME}"
 
-	if exec /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} | gzip -c -9 > /backup/\${BACKUP_GZ_NAME} ;then
+	if flock -x -n /root/.cache/duplicity/backup.lock -c "exec /usr/local/bin/gosu mysql mysqldump -h\${MYSQL_HOST} -P\${MYSQL_PORT} -u\${MYSQL_USER} -p\${MYSQL_PASS} \${EXTRA_OPTS} \${MYSQL_DB} | gzip -c -9 > /backup/\${BACKUP_GZ_NAME}" ;then
 		echo "   Backup succeeded"
 	else
 		echo "   Backup failed"
