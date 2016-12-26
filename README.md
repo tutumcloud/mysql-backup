@@ -40,6 +40,7 @@ Moreover, if you link `tutum/mysql-backup` to a mysql container(e.g. `tutum/mysq
 	SFTP_DIR                         remote directory to place files over sftp
 	DUPLICITY_EXTRA_OPTS             usefull value: --full-if-older-than 1M --allow-source-mismatch
 	DUPLICITY_ENCRYPT_PASSPHRASE     the encryption passphrase. keep it in a secret
+	DUPLICITY_SCHEME                 the scheme for duplicity to work with backup server. the default value is sftp. pexpect+sftp is also supported.
 
 ## Usage with duplicity over sftp
 
