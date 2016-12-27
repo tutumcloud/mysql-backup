@@ -56,6 +56,14 @@ if [[ ! -z \${SFTP_USER} && ! -z \${SFTP_HOST} && ! -z \${SFTP_DIR} ]]; then
 	else
 		echo "   Backup failed"
 	fi
+
+	if [ -n "\${MAX_BACKUPS}" ]; then
+		if flock -x -n /root/.cache/duplicity/backup.lock -c "duplicity remove-older-than \${MAX_BACKUPS} --force --ssh-options=\"-oProtocol=2 -oIdentityFile=/root/.ssh/id_rsa\" \${DUPLICITY_SCHEME}://\${SFTP_USER}@\${SFTP_HOST}:\${SFTP_PORT}/\${SFTP_DIR}" ;then
+			echo "   Backup succeeded"
+		else
+			echo "   Backup failed"
+		fi
+	fi
 else
 	echo "=> Backup started: \${BACKUP_GZ_NAME}"
 
